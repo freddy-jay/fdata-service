@@ -1,21 +1,5 @@
-import config from '../config/config';
-import {Database} from 'sqlite3';
-
-interface ApiInterface {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fetchData(...args: any[]): Promise<ApiData[]>;
-}
-
-type ApiData = {
-  date: String;
-  time: String;
-  symbol: String;
-  open: Number;
-  high: Number;
-  low: Number;
-  close: Number;
-  volume: Number;
-};
+import config from '../../config/config';
+import {ApiInterface, ApiData} from './api.interface';
 
 export class AlphaVantageApi implements ApiInterface {
   private url = 'https://www.alphavantage.co';
@@ -41,15 +25,21 @@ export class AlphaVantageApi implements ApiInterface {
       .then(data => {
         const timeSeries = data[`Time Series (${interval})`];
         const flattenedTimeSeries: ApiData[] = [];
+
         Object.keys(timeSeries).forEach(key => {
-          const values = timeSeries[key];
+          const values: AlphaVantageDataValues = timeSeries[key];
           flattenedTimeSeries.push(this.responseToApiData(key, values, symbol));
         });
+
         return flattenedTimeSeries;
       });
   }
 
-  private responseToApiData(key: String, values: any, symbol: String) {
+  private responseToApiData(
+    key: String,
+    values: AlphaVantageDataValues,
+    symbol: String
+  ): ApiData {
     return {
       date: key,
       time: key,
@@ -62,6 +52,14 @@ export class AlphaVantageApi implements ApiInterface {
     };
   }
 }
+
+type AlphaVantageDataValues = {
+  '1. open': Number;
+  '2. high': Number;
+  '3. low': Number;
+  '4. close': Number;
+  '5. volume': Number;
+};
 
 export enum AlphaVantageFunctions {
   DAILY = 'TIME_SERIES_DAILY',
