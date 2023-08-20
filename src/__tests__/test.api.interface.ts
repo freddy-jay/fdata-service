@@ -2,6 +2,7 @@ import {
   AlphaVantageApi,
   AlphaVantageFunctions,
   AlphaVantageIntervals,
+  AlphaVantageOutputSize,
 } from '../utils/apis/alphavantage';
 import config from '../config/config';
 
@@ -15,7 +16,8 @@ describe('alpha vantage get data', () => {
     const data = api.fetchData(
       'IBM',
       AlphaVantageFunctions.DAILY,
-      AlphaVantageIntervals.DAILY
+      AlphaVantageIntervals.DAILY,
+      AlphaVantageOutputSize.COMPACT
     );
     await expect(data).resolves.toBeDefined();
     expect((await data).at(0)?.symbol).toBe('IBM');

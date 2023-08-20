@@ -7,10 +7,11 @@ export class AlphaVantageApi implements ApiInterface {
   async fetchData(
     symbol: String,
     apiFunction: AlphaVantageFunctions,
-    interval: AlphaVantageIntervals
+    interval: AlphaVantageIntervals,
+    outputSize: AlphaVantageOutputSize
   ): Promise<ApiData[]> {
     return fetch(
-      `${this.url}/query?function=${apiFunction}&symbol=${symbol}&apikey=${config.AlphaVantageKey}`,
+      this.composeRequestUrl(symbol, apiFunction, interval, outputSize),
       {
         method: 'GET',
         headers: {
@@ -33,6 +34,21 @@ export class AlphaVantageApi implements ApiInterface {
 
         return flattenedTimeSeries;
       });
+  }
+
+  private composeRequestUrl(
+    symbol: String,
+    apiFunction: AlphaVantageFunctions,
+    interval: AlphaVantageIntervals,
+    outputSize: AlphaVantageOutputSize
+  ): RequestInfo {
+    const url = `${this.url}/query?function=${apiFunction}&symbol=${symbol}&apikey=${config.AlphaVantageKey}&outputsize=${outputSize}`;
+
+    if (apiFunction === AlphaVantageFunctions.DAILY) {
+      return url;
+    } else {
+      return url + `&interval=${interval}`;
+    }
   }
 
   private responseToApiData(
@@ -73,4 +89,9 @@ export enum AlphaVantageIntervals {
   MIN_15 = '15min',
   MIN_30 = '30min',
   MIN_60 = '60min',
+}
+
+export enum AlphaVantageOutputSize {
+  COMPACT = 'compact',
+  FULL = 'full',
 }
