@@ -83,10 +83,27 @@ export class DataStore {
     });
   }
 
-  getRows(table: Tables): Promise<ApiData[]> {
+  getSymbol(
+    symbol: string,
+    table: Tables,
+    dateRange?: {startDate: string; endDate: string}
+  ): Promise<ApiData[]> {
+    if (dateRange) {
+      return this.getRows(
+        `SELECT * FROM ${table} WHERE symbol = ? AND datetime BETWEEN ? AND ?`,
+        [symbol, dateRange.startDate, dateRange.endDate]
+      );
+    }
+    return this.getRows(`SELECT * FROM ${table} WHERE symbol = ?`, [symbol]);
+  }
+
+  getAllRows(table: Tables): Promise<ApiData[]> {
+    return this.getRows(`SELECT * FROM ${table}`, []);
+  }
+
+  private getRows(sql: string, params: string[]): Promise<ApiData[]> {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT * FROM ${table}`;
-      this.db.all(sql, [], (err, rows) => {
+      this.db.all(sql, params, (err, rows) => {
         if (err) {
           console.error(err.message);
           reject(err);
