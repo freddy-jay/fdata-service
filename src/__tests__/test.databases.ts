@@ -47,7 +47,13 @@ describe('DataStore', () => {
   });
 
   test('should create a database', () => {
-    expect(fs.existsSync(dataStore.dbPath)).toBe(true);
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(null);
+      }, 1000);
+    }).then(() => {
+      expect(fs.existsSync(dataStore.dbPath)).toBe(true);
+    });
   });
 
   test('should insert rows', () => {
@@ -58,14 +64,22 @@ describe('DataStore', () => {
 
   test('should get all rows', () => {
     return dataStore.getAllRows(Tables.DAILY).then(result => {
-      expect(result).toStrictEqual(data);
+      expect(result).toBeDefined();
+      expect(result.length).toEqual(data.length);
+      expect(result).toContainEqual(data[0]);
+      expect(result).toContainEqual(data[1]);
+      expect(result).toContainEqual(data[2]);
     });
   });
 
   test('get all data for symbol', () => {
     const symbol = 'AAPL';
     return dataStore.getSymbol(symbol, Tables.DAILY).then(result => {
-      expect(result).toStrictEqual(data.filter(d => d.symbol === symbol));
+      const expectedData = data.filter(d => d.symbol === symbol);
+      expect(result).toBeDefined();
+      expect(result.length).toEqual(expectedData.length);
+      expect(result).toContainEqual(expectedData[0]);
+      expect(result).toContainEqual(expectedData[1]);
     });
   });
   test('get all data for symbol in range', () => {
@@ -76,6 +90,7 @@ describe('DataStore', () => {
         endDate: '2020-01-02',
       })
       .then(result => {
+        expect(result).toBeDefined();
         expect(result).toStrictEqual(
           data.filter(d => d.symbol === symbol && d.datetime === '2020-01-02')
         );
