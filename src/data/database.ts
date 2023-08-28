@@ -10,11 +10,20 @@ export enum Tables {
 export class DataStore {
   private db: sqlite3.Database;
   private dbName: string;
+  private dbPath: string;
+  DB_FOLDER = './db';
 
   constructor(dbName: string) {
     this.dbName = dbName;
-    const dbPath = path.join(__dirname, dbName);
-    this.db = new sqlite3.Database(dbPath);
+    this.createDbFolder();
+    this.dbPath = path.join(this.DB_FOLDER, this.dbName);
+    this.db = new sqlite3.Database(this.dbPath);
+  }
+
+  private createDbFolder() {
+    if (!fs.existsSync(this.DB_FOLDER)) {
+      fs.mkdirSync(this.DB_FOLDER);
+    }
   }
 
   async createDailyTable() {
@@ -82,8 +91,7 @@ export class DataStore {
   }
 
   async deleteDb() {
-    const dbPath = path.join(__dirname, this.dbName);
-    fs.unlinkSync(dbPath);
+    fs.unlinkSync(this.dbPath);
   }
 
   close() {
