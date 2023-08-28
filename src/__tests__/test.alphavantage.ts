@@ -1,10 +1,10 @@
+import config from '../config/config';
 import {
-  AlphaVantageApi,
+  AlphaVantage,
   AlphaVantageFunctions,
   AlphaVantageIntervals,
   AlphaVantageOutputSize,
-} from '../utils/apis/alphavantage';
-import config from '../config/config';
+} from '../data/apis/alphavantage';
 
 describe('alpha vantage get data', () => {
   test('test api key found', () => {
@@ -12,13 +12,13 @@ describe('alpha vantage get data', () => {
   });
 
   test('test api works', async () => {
-    const api = new AlphaVantageApi();
-    const data = api.fetchData(
-      'IBM',
-      AlphaVantageFunctions.DAILY,
-      AlphaVantageIntervals.DAILY,
-      AlphaVantageOutputSize.COMPACT
-    );
+    const api = new AlphaVantage();
+    const data = api.fetchData({
+      symbol: 'IBM',
+      function: AlphaVantageFunctions.DAILY,
+      interval: AlphaVantageIntervals.DAILY,
+      outputSize: AlphaVantageOutputSize.COMPACT,
+    });
     await expect(data).resolves.toBeDefined();
     expect((await data).at(0)?.symbol).toBe('IBM');
     expect((await data).at(0)?.open).toBeDefined();

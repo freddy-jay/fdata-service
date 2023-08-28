@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "build",
-    "lib": ["DOM"]
+    "lib": ["DOM"],
+    "noImplicitAny":false
   },
   "include": [
     "src/**/*.ts",

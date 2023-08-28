@@ -1,17 +1,23 @@
 import config from '../../config/config';
-import {ApiInterface, ApiData} from './api.interface';
 
-export class AlphaVantageApi implements ApiInterface {
+export interface RequestProps {
+  symbol: String;
+  function: AlphaVantageFunctions;
+  interval: AlphaVantageIntervals;
+  outputSize: AlphaVantageOutputSize;
+}
+
+export class AlphaVantage {
   private url = 'https://www.alphavantage.co';
 
-  async fetchData(
-    symbol: String,
-    apiFunction: AlphaVantageFunctions,
-    interval: AlphaVantageIntervals,
-    outputSize: AlphaVantageOutputSize
-  ): Promise<ApiData[]> {
+  async fetchData(props: RequestProps): Promise<ApiData[]> {
     return fetch(
-      this.composeRequestUrl(symbol, apiFunction, interval, outputSize),
+      this.composeRequestUrl(
+        props.symbol,
+        props.function,
+        props.interval,
+        props.outputSize
+      ),
       {
         method: 'GET',
         headers: {
@@ -24,12 +30,14 @@ export class AlphaVantageApi implements ApiInterface {
         return response.json();
       })
       .then(data => {
-        const timeSeries = data[`Time Series (${interval})`];
+        const timeSeries = data[`Time Series (${props.interval})`];
         const flattenedTimeSeries: ApiData[] = [];
 
         Object.keys(timeSeries).forEach(key => {
           const values: AlphaVantageDataValues = timeSeries[key];
-          flattenedTimeSeries.push(this.responseToApiData(key, values, symbol));
+          flattenedTimeSeries.push(
+            this.responseToApiData(key, values, props.symbol)
+          );
         });
 
         return flattenedTimeSeries;
@@ -57,8 +65,7 @@ export class AlphaVantageApi implements ApiInterface {
     symbol: String
   ): ApiData {
     return {
-      date: key,
-      time: key,
+      datetime: key,
       symbol: symbol,
       open: values['1. open'],
       high: values['2. high'],
@@ -95,3 +102,13 @@ export enum AlphaVantageOutputSize {
   COMPACT = 'compact',
   FULL = 'full',
 }
+
+export type ApiData = {
+  datetime: String;
+  symbol: String;
+  open: Number;
+  high: Number;
+  low: Number;
+  close: Number;
+  volume: Number;
+};
