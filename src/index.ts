@@ -1,9 +1,4 @@
-import {
-  AlphaVantage,
-  AlphaVantageFunctions,
-  AlphaVantageIntervals,
-  AlphaVantageOutputSize,
-} from './data/apis/alphavantage';
+import {AlphaVantage} from './data/apis/alphavantage';
 
 export class DataService {
   api: AlphaVantage;
