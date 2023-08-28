@@ -50,23 +50,40 @@ export class DataStore {
     });
   }
 
-  async insertData(data: ApiData[], table: Tables) {
-    const sql = `INSERT INTO ${table} VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    data.forEach(async d => {
-      await this.db.run(
+  insertRows(data: ApiData[], table: Tables) {
+    return Promise.all(data.map(d => this.insertRow(d, table))).then(result => {
+      return result.reduce(
+        (sum, current) => (sum as number) + (current as number),
+        0
+      );
+    });
+  }
+
+  insertRow(data: ApiData, table: Tables) {
+    return new Promise((resolve, reject) => {
+      const sql = `INSERT INTO ${table} VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      this.db.run(
         sql,
-        [d.datetime, d.symbol, d.open, d.high, d.low, d.close, d.volume],
+        [
+          data.datetime,
+          data.symbol,
+          data.open,
+          data.high,
+          data.low,
+          data.close,
+          data.volume,
+        ],
         function (err) {
           if (err) {
-            console.error(err.message);
+            return reject(err);
           }
-          console.log(`${this.changes}`);
+          resolve(this.changes);
         }
       );
     });
   }
 
-  getData(table: Tables): Promise<ApiData[]> {
+  getRows(table: Tables): Promise<ApiData[]> {
     return new Promise((resolve, reject) => {
       const sql = `SELECT * FROM ${table}`;
       this.db.all(sql, [], (err, rows) => {

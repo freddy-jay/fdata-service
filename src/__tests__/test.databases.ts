@@ -34,10 +34,22 @@ describe('DataStore', () => {
 
   afterAll(() => {
     dataStore.close();
-    // dataStore.deleteDb();
+    dataStore.deleteDb();
   });
 
-  it('should create a database', () => {
+  test('should create a database', () => {
     expect(fs.existsSync(dataStore.dbPath)).toBe(true);
+  });
+
+  test('should insert rows', () => {
+    return dataStore.insertRows(data, Tables.DAILY).then(result => {
+      expect(result).toEqual(2);
+    });
+  });
+
+  test('should get all rows', () => {
+    return dataStore.getRows(Tables.DAILY).then(result => {
+      expect(result).toStrictEqual(data);
+    });
   });
 });
