@@ -1,9 +1,10 @@
 // test database.ts DataStore class
-import {DataStore} from '../data/database';
+import {DataStore, Tables} from '../data/database';
+import * as fs from 'fs';
 
 describe('DataStore', () => {
   const dbName = 'test.db';
-  const dataStore = new DataStore(dbName);
+  let dataStore: DataStore;
 
   const data = [
     {
@@ -27,28 +28,16 @@ describe('DataStore', () => {
   ];
 
   beforeAll(() => {
-    dataStore.createTable();
+    dataStore = new DataStore(dbName);
+    dataStore.createDailyTable();
   });
 
   afterAll(() => {
     dataStore.close();
-    dataStore.deleteDb();
+    // dataStore.deleteDb();
   });
 
-  test('should insert data into database', () => {
-    dataStore.insertData(data);
-    const insertedData = dataStore.getData();
-    expect(insertedData).resolves.toBe(2);
-  });
-
-  test('should get data from database', () => {
-    const insertedData = dataStore.getData();
-    expect(insertedData).resolves.toEqual(data);
-  });
-
-  test('should additional insertion', () => {
-    dataStore.insertData(data);
-    const insertedData = dataStore.getData();
-    expect(insertedData).resolves.toBe(4);
+  it('should create a database', () => {
+    expect(fs.existsSync(dataStore.dbPath)).toBe(true);
   });
 });

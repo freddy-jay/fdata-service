@@ -10,8 +10,9 @@ export enum Tables {
 export class DataStore {
   private db: sqlite3.Database;
   private dbName: string;
-  private dbPath: string;
-  DB_FOLDER = './db';
+  private DB_FOLDER = './db/';
+
+  dbPath: string;
 
   constructor(dbName: string) {
     this.dbName = dbName;
